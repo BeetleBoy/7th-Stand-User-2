@@ -21,6 +21,7 @@
 //
 ////////////////////////////////////////////////////////////
 
+#include <SFML/Graphics.hpp>
 #include "AnimatedSprite.hpp"
 
 AnimatedSprite::AnimatedSprite(sf::Time frameTime, bool paused, bool looped) :

@@ -1,11 +1,12 @@
 //Beetle Boy
 //2016
 //7th Stand User 2
-//Personality Evaluation Demo
-#define _WIN32_WINNT 0x0500
+//7SU2 Demo
+//define _WIN32_WINNT 0x0500
 #include <windows.h>
-#include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
 #include <fstream>
 #include <iostream>
 #include <stdio.h>
@@ -18,7 +19,7 @@
 #include "Animation.hpp"
 #include "AnimatedSprite.cpp"
 #include "Animation.cpp"
-#include "entity.h"
+#include "Entity.hpp"
 
 using namespace std;
 
@@ -1861,17 +1862,17 @@ int main()
     mc_sprite.setPosition(64, 480);
     mc_sprite.setSize(32, 32);
     mc_sprite.walking = false;
+    view1.setCenter(mc_sprite.getPosition().x + 16, mc_sprite.getPosition().y + 16);
     bool notSet = true;
     MapSprite game_map;
     if (!game_map.load("Maps/hirosehouse1f.png", sf::Vector2u(32, 32), 34, 40))
         return -1;
-    sf::SoundBuffer buffer;
 
-    sf::Sound bgm;
-    if (!buffer.loadFromFile("Music/koichi-03.ogg"))
+    sf::Music bgm;
+    if (!bgm.openFromFile("Music/koichi-03.ogg"))
         return -1;
-    bgm = sf::Sound(buffer);
     bgm.setLoop(true);
+
     //koichiObject(mc_texture);
     while (window.isOpen())
     {
@@ -1881,7 +1882,7 @@ int main()
             window.draw(welcome);
             window.display();
         }
-        if (!mc_sprite.walking)
+        if (!mc_sprite.walking && focus)
         {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1))
             {
@@ -1906,6 +1907,7 @@ int main()
                     mc_sprite.currentAnimation = &mc_sprite.walkR;
                 }
                 notSet = false;
+                window.setView(view1);
             }
             else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2))
             {
@@ -1930,6 +1932,7 @@ int main()
                     mc_sprite.currentAnimation = &mc_sprite.walkR;
                 }
                 notSet = false;
+                window.setView(view1);
             }
             else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3))
             {
@@ -1954,6 +1957,7 @@ int main()
                     mc_sprite.currentAnimation = &mc_sprite.walkR;
                 }
                 notSet = false;
+                window.setView(view1);
             }
             else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num4))
             {
@@ -1978,6 +1982,7 @@ int main()
                     mc_sprite.currentAnimation = &mc_sprite.walkR;
                 }
                 notSet = false;
+                window.setView(view1);
             }
             else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num5))
             {
@@ -2002,6 +2007,7 @@ int main()
                     mc_sprite.currentAnimation = &mc_sprite.walkR;
                 }
                 notSet = false;
+                window.setView(view1);
             }
             else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num6))
             {
@@ -2026,9 +2032,10 @@ int main()
                     mc_sprite.currentAnimation = &mc_sprite.walkR;
                 }
                 notSet = false;
+                window.setView(view1);
             }
         }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+        if (focus && sf::Keyboard::isKeyPressed(sf::Keyboard::A))
         {
             cout << mc_sprite.getPosition().x << ", " << mc_sprite.getPosition().y << endl;
         }
@@ -2055,6 +2062,7 @@ int main()
         {
             if (event.type == sf::Event::Closed)
             {
+                bgm.stop();
                 window.close();
                 return 0;
             }
@@ -2067,7 +2075,7 @@ int main()
             if (event.type == sf::Event::GainedFocus)
             {
                 focus = true;
-                bgm.pause();
+                bgm.play();
                 mc_sprite.frameClock.start();
             }
         }

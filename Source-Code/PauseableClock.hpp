@@ -26,7 +26,7 @@ THE SOFTWARE.
 #ifndef PAUSEABLECLOCK_HPP
 #define PAUSEABLECLOCK_HPP
 
-#include <SFML/System.hpp>
+#include <SFML/System/Clock.hpp>
 
 namespace sfuser {
 
