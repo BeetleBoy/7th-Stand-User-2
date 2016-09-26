@@ -5,6 +5,7 @@
 #define _WIN32_WINNT 0x0500
 #include <windows.h>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <fstream>
 #include <iostream>
 #include <stdio.h>
@@ -24,7 +25,6 @@ using namespace std;
 int textSpeed = 25;
 
 sf::Clock frameClock;
-sf::Font font;
 sf::Text stx;
 sf::Text wtx;
 sf::Text otx;
@@ -1783,47 +1783,251 @@ void Stand::initStand(int i)
     return;
 }
 
-sf::Texture load_texture(string filename)
+int locationChange(MapSprite &game_map, MovingSprite &mc_sprite)
 {
-    sf::Texture texture;
-
-    if (!texture.loadFromFile(filename))
+    if (game_map.mapName.compare("Hirose Residence, 1F") == 0)
     {
-        cout << "Error loading file\n";
-        return texture;
+        if (mc_sprite.getPosition().x == 576 && mc_sprite.getPosition().y == 384)
+        {
+            game_map = MapSprite();
+            if (!game_map.load("Maps/hirosehouse2f.png", sf::Vector2u(32, 32), 22, 35))
+                return 0;
+            mc_sprite.currentAnimation = &mc_sprite.walkD;
+            mc_sprite.setPosition(sf::Vector2f(576, 352));
+            mc_sprite.moving[1] = true;
+            mc_sprite.walking = true;
+            mc_sprite.nextSpot = 384;
+        }
     }
-    return texture;
-}
-
-void koichiObject(sf::Texture texture)
-{
-    int xOffset = 32+(96*2);
-    sf::Sprite koichi;
-    koichi.setTexture(texture);
-    koichi.setTextureRect(sf::IntRect( xOffset,    0,  32, 32));
-    koichi.setPosition(64, 64);
-    sprites.push_back(koichi);
-    textures.push_back(texture);
+    else if (game_map.mapName.compare("Hirose Residence, 2F") == 0)
+    {
+        if (mc_sprite.getPosition().x == 576 && mc_sprite.getPosition().y == 352)
+        {
+            game_map = MapSprite();
+            if (!game_map.load("Maps/hirosehouse1f.png", sf::Vector2u(32, 32), 34, 40))
+                return 0;
+            mc_sprite.currentAnimation = &mc_sprite.walkD;
+            mc_sprite.setPosition(sf::Vector2f(576, 384));
+            mc_sprite.moving[1] = true;
+            mc_sprite.walking = true;
+            mc_sprite.nextSpot = 416;
+        }
+        else if (mc_sprite.getPosition().x == 512 && mc_sprite.getPosition().y == 320)
+        {
+            game_map = MapSprite();
+            if (!game_map.load("Maps/hirosehouse3f.png", sf::Vector2u(32, 32), 16, 15))
+                return 0;
+            mc_sprite.currentAnimation = &mc_sprite.walkD;
+            mc_sprite.setPosition(sf::Vector2f(384, 96));
+            mc_sprite.moving[1] = true;
+            mc_sprite.walking = true;
+            mc_sprite.nextSpot = 128;
+        }
+    }
+    else if (game_map.mapName.compare("Hirose Residence, 3F") == 0)
+    {
+        if (mc_sprite.getPosition().x == 384 && mc_sprite.getPosition().y == 96)
+        {
+            game_map = MapSprite();
+            if (!game_map.load("Maps/hirosehouse2f.png", sf::Vector2u(32, 32), 22, 35))
+                return 0;
+            mc_sprite.currentAnimation = &mc_sprite.walkD;
+            mc_sprite.setPosition(sf::Vector2f(512, 320));
+            mc_sprite.moving[1] = true;
+            mc_sprite.walking = true;
+            mc_sprite.nextSpot = 352;
+        }
+    }
+    return 1;
 }
 
 int main()
 {
+    sf::Font font;
+    if (!font.loadFromFile("Fonts/arial.ttf"))
+        return -1;
+    sf::Text welcome;
+    welcome.setFont(font);
+    welcome.setString("Welcome to Beetle Boy's 7SU2 Demo\nPress (1-6) to load a character sprite");
+    welcome.setCharacterSize(32);
+    welcome.setColor(sf::Color::White);
+    window.clear(sf::Color::Black);
+    window.display();
     bool focus = true;
     sf::View view1;
     view1.setSize(sf::Vector2f(640, 480));
     MovingSprite mc_sprite;
-    mc_sprite.setTexture("protag1.png");
-    mc_sprite.setPos(64, 480);
+    mc_sprite.setTexture("Sprites/protag1.png");
+    mc_sprite.setPosition(64, 480);
     mc_sprite.setSize(32, 32);
-    mc_sprite.setOffset(0, 0);
-    mc_sprite.setAnimations();
+    mc_sprite.walking = false;
+    bool notSet = true;
     MapSprite game_map;
-    if (!game_map.load("hirosehouse1f.png", sf::Vector2u(32, 32), 34, 40))
+    if (!game_map.load("Maps/hirosehouse1f.png", sf::Vector2u(32, 32), 34, 40))
         return -1;
+    sf::SoundBuffer buffer;
 
+    sf::Sound bgm;
+    if (!buffer.loadFromFile("Music/koichi-03.ogg"))
+        return -1;
+    bgm = sf::Sound(buffer);
+    bgm.setLoop(true);
     //koichiObject(mc_texture);
     while (window.isOpen())
     {
+        if (notSet)
+        {
+            window.clear(sf::Color::Black);
+            window.draw(welcome);
+            window.display();
+        }
+        if (!mc_sprite.walking)
+        {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1))
+            {
+                mc_sprite.setOffset(0, 0);
+                cout << "Average" << endl;
+                if (notSet)
+                {
+                    bgm.play();
+                }
+                Animation *curr;
+                if (!notSet)
+                {
+                    curr = mc_sprite.currentAnimation;
+                }
+                mc_sprite.setAnimations();
+                if (!notSet)
+                {
+                    mc_sprite.currentAnimation = curr;
+                }
+                else
+                {
+                    mc_sprite.currentAnimation = &mc_sprite.walkR;
+                }
+                notSet = false;
+            }
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2))
+            {
+                mc_sprite.setOffset(1, 0);
+                cout << "Pretty Boy" << endl;
+                if (notSet)
+                {
+                    bgm.play();
+                }
+                Animation *curr;
+                if (!notSet)
+                {
+                    curr = mc_sprite.currentAnimation;
+                }
+                mc_sprite.setAnimations();
+                if (!notSet)
+                {
+                    mc_sprite.currentAnimation = curr;
+                }
+                else
+                {
+                    mc_sprite.currentAnimation = &mc_sprite.walkR;
+                }
+                notSet = false;
+            }
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3))
+            {
+                mc_sprite.setOffset(2, 0);
+                cout << "Glasses" << endl;
+                if (notSet)
+                {
+                    bgm.play();
+                }
+                Animation *curr;
+                if (!notSet)
+                {
+                    curr = mc_sprite.currentAnimation;
+                }
+                mc_sprite.setAnimations();
+                if (!notSet)
+                {
+                    mc_sprite.currentAnimation = curr;
+                }
+                else
+                {
+                    mc_sprite.currentAnimation = &mc_sprite.walkR;
+                }
+                notSet = false;
+            }
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num4))
+            {
+                mc_sprite.setOffset(0, 1);
+                cout << "Short" << endl;
+                if (notSet)
+                {
+                    bgm.play();
+                }
+                Animation *curr;
+                if (!notSet)
+                {
+                    curr = mc_sprite.currentAnimation;
+                }
+                mc_sprite.setAnimations();
+                if (!notSet)
+                {
+                    mc_sprite.currentAnimation = curr;
+                }
+                else
+                {
+                    mc_sprite.currentAnimation = &mc_sprite.walkR;
+                }
+                notSet = false;
+            }
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num5))
+            {
+                mc_sprite.setOffset(1, 1);
+                cout << "Punk" << endl;
+                if (notSet)
+                {
+                    bgm.play();
+                }
+                Animation *curr;
+                if (!notSet)
+                {
+                    curr = mc_sprite.currentAnimation;
+                }
+                mc_sprite.setAnimations();
+                if (!notSet)
+                {
+                    mc_sprite.currentAnimation = curr;
+                }
+                else
+                {
+                    mc_sprite.currentAnimation = &mc_sprite.walkR;
+                }
+                notSet = false;
+            }
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num6))
+            {
+                mc_sprite.setOffset(2, 1);
+                cout << "Chubby" << endl;
+                if (notSet)
+                {
+                    bgm.play();
+                }
+                Animation *curr;
+                if (!notSet)
+                {
+                    curr = mc_sprite.currentAnimation;
+                }
+                mc_sprite.setAnimations();
+                if (!notSet)
+                {
+                    mc_sprite.currentAnimation = curr;
+                }
+                else
+                {
+                    mc_sprite.currentAnimation = &mc_sprite.walkR;
+                }
+                notSet = false;
+            }
+        }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
         {
             cout << mc_sprite.getPosition().x << ", " << mc_sprite.getPosition().y << endl;
@@ -1831,66 +2035,20 @@ int main()
         sf::Event event;
         if (focus)
         {
-            mc_sprite.move_overworld(game_map);
-            view1.setCenter(mc_sprite.getPosition().x+16, mc_sprite.getPosition().y+16);
-            window.clear();
-            window.draw(game_map);
-            window.draw(mc_sprite);
-            game_map.drawCeil(&window);
-            window.display();
-            window.setView(view1);
-            if (game_map.mapName.compare("Hirose Residence, 1F") == 0)
+            if (!notSet)
             {
-                if (mc_sprite.getPosition().x == 576 && mc_sprite.getPosition().y == 384)
+                mc_sprite.move_overworld(game_map);
+                view1.setCenter(mc_sprite.getPosition().x+16, mc_sprite.getPosition().y+16);
+                if (!locationChange(game_map, mc_sprite))
                 {
-                    game_map = MapSprite();
-                    if (!game_map.load("hirosehouse2f.png", sf::Vector2u(32, 32), 22, 35))
-                        return -1;
-                    mc_sprite.currentAnimation = &mc_sprite.walkD;
-                    mc_sprite.setPosition(sf::Vector2f(576, 352));
-                    mc_sprite.moving[1] = true;
-                    mc_sprite.walking = true;
-                    mc_sprite.nextSpot = 384;
+                    return 1;
                 }
-            }
-            else if (game_map.mapName.compare("Hirose Residence, 2F") == 0)
-            {
-                if (mc_sprite.getPosition().x == 576 && mc_sprite.getPosition().y == 352)
-                {
-                    game_map = MapSprite();
-                    if (!game_map.load("hirosehouse1f.png", sf::Vector2u(32, 32), 34, 40))
-                        return -1;
-                    mc_sprite.currentAnimation = &mc_sprite.walkD;
-                    mc_sprite.setPosition(sf::Vector2f(576, 384));
-                    mc_sprite.moving[1] = true;
-                    mc_sprite.walking = true;
-                    mc_sprite.nextSpot = 416;
-                }
-                else if (mc_sprite.getPosition().x == 512 && mc_sprite.getPosition().y == 320)
-                {
-                    game_map = MapSprite();
-                    if (!game_map.load("hirosehouse3f.png", sf::Vector2u(32, 32), 16, 15))
-                        return -1;
-                    mc_sprite.currentAnimation = &mc_sprite.walkD;
-                    mc_sprite.setPosition(sf::Vector2f(384, 96));
-                    mc_sprite.moving[1] = true;
-                    mc_sprite.walking = true;
-                    mc_sprite.nextSpot = 128;
-                }
-            }
-            else if (game_map.mapName.compare("Hirose Residence, 3F") == 0)
-            {
-                if (mc_sprite.getPosition().x == 384 && mc_sprite.getPosition().y == 96)
-                {
-                    game_map = MapSprite();
-                    if (!game_map.load("hirosehouse2f.png", sf::Vector2u(32, 32), 22, 35))
-                        return -1;
-                    mc_sprite.currentAnimation = &mc_sprite.walkD;
-                    mc_sprite.setPosition(sf::Vector2f(512, 320));
-                    mc_sprite.moving[1] = true;
-                    mc_sprite.walking = true;
-                    mc_sprite.nextSpot = 352;
-                }
+                window.clear();
+                window.draw(game_map);
+                window.draw(mc_sprite);
+                game_map.drawCeil(&window);
+                window.display();
+                window.setView(view1);
             }
         }
         while (window.pollEvent(event))
@@ -1903,11 +2061,13 @@ int main()
             if (event.type == sf::Event::LostFocus)
             {
                 focus = false;
+                bgm.pause();
                 mc_sprite.frameClock.pause();
             }
             if (event.type == sf::Event::GainedFocus)
             {
                 focus = true;
+                bgm.pause();
                 mc_sprite.frameClock.start();
             }
         }

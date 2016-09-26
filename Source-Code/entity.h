@@ -58,7 +58,7 @@ public:
             return false;
 
         bboxcount = 0;
-        if (mapimage.compare("hirosehouse1f.png") == 0)
+        if (mapimage.compare("Maps/hirosehouse1f.png") == 0)
         {
             //1 =  32
             //2 =  64
@@ -115,7 +115,7 @@ public:
                 ceil.push_back(ce);
             }
         }
-        else if (mapimage.compare("hirosehouse2f.png") == 0)
+        else if (mapimage.compare("Maps/hirosehouse2f.png") == 0)
         {
             mapName = "Hirose Residence, 2F";
             for (unsigned int i = 0; i < mapName.length(); i++)
@@ -124,7 +124,7 @@ public:
             }
             printf("\n");
         }
-        else if (mapimage.compare("hirosehouse3f.png") == 0)
+        else if (mapimage.compare("Maps/hirosehouse3f.png") == 0)
         {
             mapName = "Hirose Residence, 3F";
             for (unsigned int i = 0; i < mapName.length(); i++)
@@ -230,12 +230,6 @@ void Entity::setTexture(std::string filename)
     texture.loadFromFile(filename);
 }
 
-void Entity::setPos(int xP, int yP)
-{
-    x = xP;
-    y = yP;
-}
-
 void Entity::setSize(int wS, int hS)
 {
     w = wS;
@@ -250,24 +244,25 @@ void MovingSprite::setOffset(int xO, int yO)
 
 void MovingSprite::setAnimations(void)
 {
+    walkD = Animation();
     walkD.setSpriteSheet(texture);
     walkD.addFrame(sf::IntRect( xOffset+1,    yOffset,     w, h));
     walkD.addFrame(sf::IntRect( xOffset+w+1, yOffset,     w, h));
     walkD.addFrame(sf::IntRect( xOffset+1,    yOffset,     w, h));
     walkD.addFrame(sf::IntRect( xOffset-w+1, yOffset,     w, h));
-
+    walkL = Animation();
     walkL.setSpriteSheet(texture);
     walkL.addFrame(sf::IntRect( xOffset,    yOffset+h,  w, h));
     walkL.addFrame(sf::IntRect( xOffset+w, yOffset+h,  w, h));
     walkL.addFrame(sf::IntRect( xOffset,    yOffset+h,  w, h));
     walkL.addFrame(sf::IntRect( xOffset-w, yOffset+h,  w, h));
-
+    walkR = Animation();
     walkR.setSpriteSheet(texture);
     walkR.addFrame(sf::IntRect(xOffset,    yOffset+(2*h),  w, h));
     walkR.addFrame(sf::IntRect(xOffset+w, yOffset+(2*h),  w, h));
     walkR.addFrame(sf::IntRect(xOffset,    yOffset+(2*h),  w, h));
     walkR.addFrame(sf::IntRect(xOffset-w, yOffset+(2*h),  w, h));
-
+    walkU = Animation();
     walkU.setSpriteSheet(texture);
     walkU.addFrame(sf::IntRect(   xOffset,    yOffset+(3*h), w, h));
     walkU.addFrame(sf::IntRect(   xOffset+w, yOffset+(3*h), w, h));
@@ -276,7 +271,6 @@ void MovingSprite::setAnimations(void)
 
     speed = 96.0f;
     currentAnimation = &walkD;
-    setPosition(x, y);
     setAnimation(walkD);
     setFrameTime(sf::seconds(0.16f));
     noKeyWasPressed = true;
